@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>celebrity lookalike</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-63a9886709d7543b"></script>
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg bg-light nav-distance">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Who do I look like?</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            Dropdown
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link disabled">Disabled</a>
+                    </li>
+                </ul>
+                <form class="d-flex" role="search">
+                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <section class="section">
+        <h1 class="title">Who do I look like?</h1>
+        <h2 class="subtitle"></h2>
+        <div class="blah">Teachable Machine Image Model</div>
+
+    </section>
+
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <div class="file-upload">
+        </button>
+        <div class="image-upload-wrap">
+            <input class="file-upload-input" type='file' onchange="readURL(this);" accept="image/*" />
+            <div class="drag-text">
+                <h3>Drag and drop a file or select add Image</h3>
+            </div>
+        </div>
+        <div class="file-upload-content">
+            <img class="file-upload-image" id="face-image" src="#" alt="your image" />
+            <div id="label-container"></div>
+            <div class="image-title-wrap">
+                <button type="button" onclick="removeUpload()" class="remove-image">Remove <span
+                        class="image-title">Uploaded Image</span></button>
+            </div>
+        </div>
+    </div>
+    <div class="box">
+        <div class="ay" id="result0"></div>
+        <div class="pic" id="pic0"></div>
+        <div class="ay" id="result1"></div>
+        <div class="pic" id="pic1"></div>
+        <div class="ay" id="result2"></div>
+        <div class="pic" id="pic2"></div>
+    </div>
+
+    <!-- Go to www.addthis.com/dashboard to customize your tools -->
+    <div class="addthis_inline_share_toolbox_633h"></div>
+            
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "https://teachablemachine.withgoogle.com/models/RsebVW9Ds/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function init() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+
+        // append elements to the DOM
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function predict() {
+            // predict can take in an image, video or canvas html element
+            var image = document.getElementById("face-image")
+            const prediction = await model.predict(image, false);
+            prediction.sort((a, b) => parseFloat(b.probability) - parseFloat(a.probability));
+
+            // remove except top 3
+            for (var i = prediction.length; i > 2; i--)
+                prediction.splice(i, 1)
+
+            const srcs = []
+            const imgs = {'Amy Adams': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Amy Adams.jpg', 'Andrew Tate': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Andrew Tate.jpg', 'Angelina Jolie': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Angelina Jolie.jpg', 'Arnold Schwarzenegger': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Arnold Schwarzenegger.jpg', 'Beyoncé': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\fiirst_impression\\first_pics\\Beyoncé.jpg', 'Brad Pitt': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\\Brad Pitt.jpg', 'Bruce Willis': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Bruce Willis.jpg', 'Cardi B': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Cardi B.jpg', 'Christina Aguilera': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Christina Aguilera.jpg', "Conan O'brien": "C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Conan O'brien.jpg", 'Cristiano Ronaldo': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Cristiano Ronaldo.jpg', 'Dababy': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Dababy.jpg', 'Dave Chappel': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Dave Chappel.jpg', 'Donald Trump': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Donald Trump.jpg', 'Drake': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Drake.jpg', 'Dwayne Johnson': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Dwayne Johnson.jpg', 'Ellen DeGeneres': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Ellen DeGeneres.jpg', 'Elon Musk': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Elon Musk.jpg', 'Elvis Presley': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Elvis Presley.jpg', 'Emma Stone': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Emma Stone.jpg', 'Emma Watson': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Emma Watson.jpg', 'George Clooney': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\George Clooney.jpg', 'Haerin': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Haerin.jpg', 'Halle Berry': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Halle Berry.jpg', 'Harrison Ford': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Harrison Ford.jpg', 'Hilery Clinton': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Hilery Clinton.jpg', 'J Cole': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\J Cole.jpg', 'James Harden': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\James Harden.jpg', 'Jennifer Aniston': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jennifer Aniston.jpg', 'Jennifer Lawrence': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jennifer Lawrence.jpg', 'Jennifer Lopez': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jennifer Lopez.jpg', 'Jessica Alba': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jessica Alba.jpg', 'Jhope': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jhope.jpg', 'Jim Carrey': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jim Carrey.jpg', 'Jimin': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jimin.jpg', 'Jin': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jin.jpg', 'Joe Biden': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Joe Biden.jpg', 'Johnny Depp': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Johnny Depp.jpg', 'Jordan Peterson': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jordan Peterson.jpg', 'Julia Roberts': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Julia Roberts.jpg', 'Jungkook': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Jungkook.jpg', 'Justin Bieber': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Justin Bieber.jpg', 'Kanye West': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Kanye West.jpg', 'Karina': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Karina.jpg', 'Katy Perry': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Katy Perry.jpg', 'Kendrick Lamar': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Kendrick Lamar.jpg', 'Kevin Durant': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Kevin Durant.jpg', 'Kevin Hart': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Kevin Hart.jpg', 'Kim Kardashian': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Kim Kardashian.jpg', 'Kobe Bryant': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Kobe Bryant.jpg', 'Kyrie Irving': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Kyrie Irving.jpg', 'Lady Gaga': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Lady Gaga.jpg', 'Lebron James': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Lebron James.jpg', 'Leonardo DiCaprio': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Leonardo DiCaprio.jpg', 'Lionel Messi': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Lionel Messi.jpg', 'Madonna': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Madonna.jpg', 'Mark Wahlberg': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Mark Wahlberg.jpg', 'Mel Gibson': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Mel Gibson.jpg', 'Michael Jackson': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Michael Jackson.jpg', 'Minji': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Minji.jpg', 'Miyeon': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Miyeon.jpg', 'Natalie Portman': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Natalie Portman.jpg', 'Neymar Jr': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Neymar Jr.jpg', 'Rihanna': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Rihanna.jpg', 'RM': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\RM.jpg', 'Robert Downey Jr.': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Robert Downey Jr..jpg', 'Robin Williams': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Robin Williams.jpg', 'Sana': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Sana.jpg', 'Sandra Bullock': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Sandra Bullock.jpg', 'Scarlett Johansson': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Scarlett Johansson.jpg', 'Seulgi': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Seulgi.jpg', 'Steve Carell': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Steve Carell.jpg', 'Steven Spielberg': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Steven Spielberg.jpg', 'Suga': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Suga.jpg', 'Taylor Swift': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Taylor Swift.jpg', 'The Weeknd': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\The Weeknd.jpg', 'Tom Cruise': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Tom Cruise.jpg', 'Tom Hanks': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Tom Hanks.jpg', 'V': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\V.jpg', 'Will Smith': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Will Smith.jpg', 'Winter': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Winter.jpg', 'Yeji': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Yeji.jpg', 'Yuqi': 'C:\\Users\\tmdwn\\OneDrive\\Documents\\webdevelop_ai\\first_impression\\first_pics\\Yuqi.jpg'}
+            
+            for (var i = 0; i<3; i++)
+                // console.log(prediction[i].className)
+                // var image_location = imgs[String(prediction[i].className)]
+                // srcs.push(image_location)
+                
+                // image_location is undefined. Why?
+                // 1. 딕셔너리 접근 2. live server문제 (local directory access denied)
+
+
+                switch (prediction[i].className) {
+                    case "Minji":
+                        srcs.push("https://www.bntnews.co.kr/data/bnt/image/2022/08/12/bnt202208120086.jpg") 
+                        break
+                    case "Andrew Tate":
+                        srcs.push("https://i2-prod.mirror.co.uk/incoming/article27788192.ece/ALTERNATES/s1200c/3_Emory-Andrew-Tate-III-Instagram-picture.jpg") 
+                        break
+                    case "Jordan Peterson":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Jordan_Peterson_by_Gage_Skidmore.jpg/1200px-Jordan_Peterson_by_Gage_Skidmore.jpg") 
+                        break
+                    case "Karina":
+                        srcs.push("https://i.pinimg.com/736x/59/cf/aa/59cfaa8c56fdb8d589072cfcecee7c96.jpg") 
+                        break
+                    case "Haerin":
+                        srcs.push("https://www.bntnews.co.kr/data/bnt/image/2022/08/19/bnt202208190118.jpg") 
+                        break
+                    case "Amy Adams":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Amy_Adams_UK_Nocturnal_Animals_Premiere_%28cropped%29.jpg/1200px-Amy_Adams_UK_Nocturnal_Animals_Premiere_%28cropped%29.jpg") 
+                        break
+                    case "Angelina Jolie":
+                        srcs.push("https://www.hollywoodreporter.com/wp-content/uploads/2022/12/Angelina-Jolie-Eternals-Photocall-GettyImages-1348868026-H-2022.jpg?w=1296") 
+                        break
+                    case "Arnold Schwarzenegger":
+                        srcs.push("https://cdn.britannica.com/11/222411-050-D3D66895/American-politician-actor-athlete-Arnold-Schwarzenegger-2016.jpg")
+                        break
+                    case "Beyoncé":
+                        srcs.push("https://cdn.britannica.com/51/188751-050-D4E1CFBC/Beyonce-2010.jpg")
+                        break
+                    case "Brad Pitt":
+                        srcs.push("https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cq_auto:good%2Cw_1200/MTY3MDUxMjkzMjI1OTIwMTcz/brad-pitt-attends-the-premiere-of-20th-century-foxs--square.jpg")
+                        break
+                    case "Bruce Willis":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/c/c4/Bruce_Willis_by_Gage_Skidmore_3.jpg")
+                        break
+                    case "Cardi B":
+                        srcs.push("https://www.biography.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cq_auto:good%2Cw_1200/MTUzMDQ5MDQ5NDIxODQ5NjA3/cardi-b-arrives-at-the-2017-mtv-video-music-awards-at-the-forum-on-august-27-2017-in-inglewood-california-photo-by-gregg-deguire_getty-images-500.jpg")
+                        break
+                    case "Christina Aguilera":
+                        srcs.push("https://images.hellomagazine.com/imagenes/fashion/celebrity-style/20221219159905/christina-aguilera-dazzling-plunging-cut-out-corset-birthday-look/0-776-698/christina-aguilera-glamour-look-t.jpg?tx=w_680")
+                        break
+                    case "Conan O'brien":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/5/59/Conan_O%27Brien_by_Gage_Skidmore_2.jpg")
+                        break
+                    case "Cristiano Ronaldo":
+                        srcs.push("https://www.cristianoronaldo.com/assets/images/brand_eyewear.jpg?832236")
+                        break
+                    case "Dababy":
+                        srcs.push("https://akns-images.eonline.com/eol_images/Entire_Site/202171/rs_1024x759-210801115300-1024-da-baby.cm.8121.jpg?fit=around%7C1024:759&output-quality=90&crop=1024:759;center,top")
+                        break
+                    case "Dave Chappelle":
+                        srcs.push("https://static.independent.co.uk/2021/10/08/13/newFile-7.jpg?quality=75&width=982&height=726&auto=webp")
+                        break
+                    case "Donald Trump":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/5/56/Donald_Trump_official_portrait.jpg")
+                        break
+                    case "Drake":
+                        srcs.push("https://media1.popsugar-assets.com/files/thumbor/zan-t_Me63if8oqWYE9ENiPLlhA/0x224:2826x3050/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2020/02/11/894/n/1922398/87f6bb525e430e7bd44e40.22278576_/i/Drake.jpg")
+                        break
+                    case "Dwayne Johnson":
+                        srcs.push("https://flxt.tmsimg.com/assets/235135_v9_bb.jpg")
+                        break
+                    case "Ellen DeGeneres":
+                        srcs.push("https://static.foxnews.com/foxnews.com/content/uploads/2021/05/Ellen-DeGeneres.jpg")
+                        break
+                    case "Elon Musk":
+                        srcs.push("https://media.npr.org/assets/img/2022/10/31/gettyimages-1240408699-1845681b19113a6c4db9b54f1a1594ff25b3cd21.jpg")
+                        break
+                    case "Elvis Presley":
+                        srcs.push("https://s.abcnews.com/images/Entertainment/elvis-presley-gty-jef-170816_4x3t_992.jpg")
+                        break
+                    case "Emma Stone":
+                        srcs.push("https://m.media-amazon.com/images/M/MV5BMjI4NjM1NDkyN15BMl5BanBnXkFtZTgwODgyNTY1MjE@._V1_.jpg")
+                        break
+                    case "Emma Watson":
+                        srcs.push("https://phantom-marca.unidadeditorial.es/2d2ef26a888c2b1583e6e7ebf2e61b90/resize/1320/f/jpg/assets/multimedia/imagenes/2022/10/16/16659422008903.jpg")
+                        break
+                    case "George Clooney":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/thumb/9/92/George_Clooney-4_The_Men_Who_Stare_at_Goats_TIFF09_%28cropped%29.jpg/1200px-George_Clooney-4_The_Men_Who_Stare_at_Goats_TIFF09_%28cropped%29.jpg")
+                        break
+                    case "Halle Berry":
+                        srcs.push("https://media1.popsugar-assets.com/files/thumbor/ONWYIlEfXX3nOlAH5DeFpjAUN4k/295x0:1760x1465/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2019/09/09/974/n/1922398/358a48ca5d76d0c48464c9.64920890_/i/Halle-Berry.jpg")
+                        break
+                    case "Harrison Ford":
+                        srcs.push("https://media.gq-magazine.co.uk/photos/5f05e5ed94d44e25fd0f5071/master/pass/20200708-Ford-02.jpg")
+                        break
+                    case "Hillary Clinton":
+                        srcs.push("https://www.nobelpeaceprize.org/getfile.php/135612-1667372766/_Research/Nobel%20Peace%20Prize%20Forum/2022/Pre_forum/HRC%202017%20Headshot.jpg%20%28large%29.jpg")
+                        break
+                    case "J Cole":
+                        srcs.push("https://media.cnn.com/api/v1/images/stellar/prod/210516155858-j-cole-2019-file.jpg?q=w_3000,h_2000,x_0,y_0,c_fill")
+                        break
+                    case "James Harden":
+                        srcs.push("https://imageio.forbes.com/specials-images/imageserve/627e7004c35e3dc95d8e435f/NBA--Miami-Heat-vs-Philadelphia-76ers/960x0.jpg?format=jpg&width=960")
+                        break
+                    case "Jennifer Aniston":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/JenniferAnistonHWoFFeb2012.jpg/640px-JenniferAnistonHWoFFeb2012.jpg")
+                        break
+                    case "Jennifer Lawrence":
+                        srcs.push("https://image.cnbcfm.com/api/v1/image/103893236-GettyImages-533810850.jpg?v=1529472521")
+                        break
+                    case "Jennifer Lopez":
+                        srcs.push("https://images.hellomagazine.com/imagenes/healthandbeauty/hair/20221223160323/jennifer-lopez-amazing-hair-transformation/0-778-595/jenniferlopez-t.jpg")
+                        break
+                    case "Jessica Alba":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/9/9a/TechCrunch_Disrupt_NY_2016_-_Day_3_%2826884815511%29_%28cropped%29.jpg")
+                        break
+                    case "Jhope":
+                        srcs.push("https://static.toiimg.com/photo/msid-92082175/92082175.jpg")
+                        break
+                    case "Jim Carrey":
+                        srcs.push("https://media.tenor.com/yKFj5_1A95UAAAAC/grinch-face-jim-carey.gif")
+                        break
+                    case "Jimin":
+                        srcs.push("https://www.billboard.com/wp-content/uploads/2021/06/Jimin-1-butter-Concept-bts-billboard-1548-1624918323.jpg?w=942&h=623&crop=1")
+                        break
+                    case "Jin":
+                        srcs.push("https://koreajoongangdaily.joins.com/data/photo/2022/11/24/0907963d-3f9b-4c5a-ab8c-b15082b11008.jpg")
+                        break
+                    case "Joe Biden":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/6/68/Joe_Biden_presidential_portrait.jpg")
+                        break
+                    case "Johnny Depp":
+                        srcs.push("https://m.media-amazon.com/images/M/MV5BOTBhMTI1NDQtYmU4Mi00MjYyLTk5MjEtZjllMDkxOWY3ZGRhXkEyXkFqcGdeQXVyNzI1NzMxNzM@._V1_.jpg")
+                        break
+                    case "Julia Roberts":
+                        srcs.push("https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/julia-roberts-transformation-1-1543325921.jpg")
+                        break
+                    case "Jungkook":
+                        srcs.push("https://i.pinimg.com/originals/46/85/3a/46853adada7eee660c6ae3acff551167.jpg")
+                        break
+                    case "Justin Bieber":
+                        srcs.push("https://media.gq-magazine.co.uk/photos/5d1397ac003d75f0b6ae6230/master/w_1280,h_1920,c_limit/Justin-Bieber-2012-GQ-28Feb17_getty_b.jpg")
+                        break
+                    case "Kanye West":
+                        srcs.push("https://static.politico.com/5b/f2/28712c134a51b4a6d40d994ca235/celebrity-birthdays-june-5-june-11-89014.jpg")
+                        break
+                    case "Katy Perry":
+                        srcs.push("https://media.glamourmagazine.co.uk/photos/6269049193df91c8f309a8b6/1:1/w_1920,h_1920,c_limit/KATY%20PERRY%20270422%20GettyImages-1238594735b.jpg")
+                        break
+                    case "Kendrick Lamar":
+                        srcs.push("https://media.newyorker.com/photos/5ad6313540fc7c73d830a3a8/1:1/w_3004,h_3004,c_limit/St-Felix-Kendrick-Lamar-Pulitzer.jpg")
+                        break
+                    case "Kevin Durant":
+                        srcs.push("https://bdc2020.o0bc.com/wp-content/uploads/2022/08/JUBBVIQ3MG7SWZC5VN7U3ADNBQ-62fa4cc640372-scaled.jpg")
+                        break
+                    case "Kevin Hart":
+                        srcs.push("https://hips.hearstapps.com/hmg-prod/images/hart-gettyimages-1062194608mod-1544461779.jpg")
+                        break
+                    case "Kim Kardashian":
+                        srcs.push("https://media1.popsugar-assets.com/files/thumbor/mzUiLo-8Y10peZM55u_w6Loa-h4/612x451:2344x2183/fit-in/2048xorig/filters:format_auto-!!-:strip_icc-!!-/2019/11/19/007/n/1922398/d3c823415dd4769f7d9263.82518194_/i/Kim-Kardashian.jpg")
+                        break
+                    case "Kobe Bryant":
+                        srcs.push("https://www.blackpast.org/wp-content/uploads/kobe-bryant.jpg")
+                        break
+                    case "Kyrie Irving":
+                        srcs.push("https://www.si.com/.image/ar_1:1%2Cc_fill%2Ccs_srgb%2Cfl_progressive%2Cq_auto:good%2Cw_1200/MTk0NjA5NzY5OTU1MzM3Mzc4/usatsi_13421105_168388303_lowres.jpg")
+                        break
+                    case "Lady Gaga":
+                        srcs.push("https://m.media-amazon.com/images/M/MV5BMTg1NjQwMzU4MF5BMl5BanBnXkFtZTgwNTk5NjQ4NjE@._V1_.jpg")
+                        break
+                    case "Lebron James":
+                        srcs.push("https://www.lakerszone.us/__export/1663709903922/sites/lakerszone/img/2022/09/20/a40977e17d12d8e8aec3de97d9fa578a.jpg_1941531968.jpg")
+                        break
+                    case "Leonardo DiCaprio":
+                        srcs.push("https://images.saymedia-content.com/.image/t_share/MTc0NDI5MTc5NzI1NDg5Nzk4/top-10-greatest-leonardo-dicaprio-movies.jpg")
+                        break
+                    case "Lionel Messi":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/b/b2/Hausziege_04.jpg")
+                        break
+                    case "Madonna":
+                        srcs.push("https://fq.co.nz/wp-content/uploads/2016/03/AMAS-1985.jpg")
+                        break
+                    case "Mark Wahlberg":
+                        srcs.push("https://media-cldnry.s-nbcnews.com/image/upload/t_fit-760w,f_auto,q_auto:best/rockcms/2022-08/Mark-Wahlberg-te-220816-ccae4d.jpg")
+                        break
+                    case "Mel Gibson":
+                        srcs.push("https://flxt.tmsimg.com/assets/633_v9_bd.jpg")
+                        break
+                    case "Michael Jackson":
+                        srcs.push("https://cdn.britannica.com/48/134348-050-D37D2830/Michael-Jackson-Grammy-Awards-1984.jpg")
+                        break
+                    case "Miyeon":
+                        srcs.push("https://file.mk.co.kr/meet/neds/2022/04/image_readtop_2022_372352_16510146755023340.jpg")
+                        break
+                    case "Natalie Portman":
+                        srcs.push("https://hips.hearstapps.com/hmg-prod/images/hbz090121btynatalie-015-1631540671.jpg")
+                        break
+                    case "Neymar Jr":
+                        srcs.push("https://imgresizer.eurosport.com/unsafe/1200x1200/smart/filters:format(jpeg)/origin-imgresizer.eurosport.com/2022/05/26/3380385-69087968-2560-1440.jpg")
+                        break
+                    case "Rihanna":
+                        srcs.push("https://cdn.britannica.com/83/211883-050-46933F1A/Rihanna-Barbadian-singer-Robyn-Fenty.jpg")
+                        break
+                    case "RM":
+                        srcs.push("https://images.news18.com/ibnlive/uploads/2021/09/namjoon.jpg")
+                        break
+                    case "Robert Downey Jr.":
+                        srcs.push("https://www.rd.com/wp-content/uploads/2018/03/rdj.jpg")
+                        break
+                    case "Robin Williams":
+                        srcs.push("https://flxt.tmsimg.com/assets/55875_v9_ba.jpg")
+                        break
+                    case "Sana":
+                        srcs.push("https://img.etoday.co.kr/pto_db/2019/05/600/20190501003922_1324984_664_905.jpg")
+                        break
+                    case "Sandra Bullock":
+                        srcs.push("https://assets.vogue.com/photos/62e04789366f2560e4f1a02d/4:3/w_2560%2Cc_limit/GettyImages-1239219325.jpg")
+                        break
+                    case "Scarlett Johansson":
+                        srcs.push("https://assets.vogue.in/photos/6347a5e3599abd34c27f3a21/2:3/w_2560%2Cc_limit/Scarlett%2520Johansson.jpeg")
+                        break
+                    case "Seulgi":
+                        srcs.push("https://i.pinimg.com/originals/dd/f2/25/ddf225e9914406d5e72aaa241ca5123c.gif")
+                        break
+                    case "Steve Carell":
+                        srcs.push("https://media4.giphy.com/media/lkibHaGO1xmJXapEdq/200w.gif?cid=6c09b9521i9bakda09qh3ziqzbpnzb4268i72kytuq78v3hj&rid=200w.gif&ct=v")
+                        break
+                    case "Steven Spielberg":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/6/67/Steven_Spielberg_by_Gage_Skidmore.jpg")
+                        break
+                    case "Suga":
+                        srcs.push("http://www.docdocdoc.co.kr/news/photo/202103/2008548_2011051_258.jpg")
+                        break
+                    case "Taylor Swift":
+                        srcs.push("https://flxt.tmsimg.com/assets/516020_v9_bc.jpg")
+                        break
+                    case "The Weeknd":
+                        srcs.push("https://www.theweeknd.com/files/2021/10/photo_202110_07_BRIANZIFF_THEWEEKND_74-1.jpeg")
+                        break
+                    case "Tom Cruise":
+                        srcs.push("https://upload.wikimedia.org/wikipedia/commons/c/c8/Jack_Reacher-_Never_Go_Back_Japan_Premiere_Red_Carpet-_Tom_Cruise_%2835338493152%29_%28cropped%29.jpg")
+                        break
+                    case "Tom Hanks":
+                        srcs.push("https://variety.com/wp-content/uploads/2022/06/AP22151673820301.jpg")
+                        break
+                    case "V":
+                        srcs.push("https://img.seoul.co.kr/img/upload/2021/10/20/SSI_20211020103954_O2.jpg")
+                        break
+                    case "Will Smith":
+                        srcs.push("https://media.tenor.com/QtaWLXiW7ncAAAAC/will-smith-will-smith-slap.gif")
+                        break
+                    case "Winter":
+                        srcs.push("https://media.tenor.com/v-yY0_qvARoAAAAC/%EC%97%90%EC%8A%A4%ED%8C%8C%EC%9C%88%ED%84%B0-%EC%9C%88%ED%84%B0.gif")
+                        break
+                    case "Yeji":
+                        srcs.push("https://i.mydramalist.com/vPlX2_5f.jpg")
+                        break
+                    case "Yuqi":
+                        srcs.push("https://menu.mt.co.kr/moneyweek/thumb/2022/10/08/06/2022100817328040044_1.jpg")
+                        break
+                    default:
+                        break
+                    }
+            
+            console.log(srcs)
+            // after prediction() output "you are {number}% like {celebrity}" 
+            for (var i = 0; i < 3; i++) {
+                var name1 = prediction[i].className
+                var probability1 = prediction[i].probability.toFixed(3) * 100;
+                document.getElementById("result" + i).innerHTML = 'you are ' + probability1 + ' % like ' + name1 + ' ';
+                document.getElementById("pic"+i).innerHTML = '<img src='+srcs[i]+'>'
+            }
+        }
+
+    </script>
+
+    <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('.image-upload-wrap').hide();
+
+                    $('.file-upload-image').attr('src', e.target.result);
+                    $('.file-upload-content').show();
+
+                    $('.image-title').html(input.files[0].name);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+                init().then(() => {
+                    predict();
+                });
+
+
+            } else {
+                removeUpload();
+            }
+        }
+
+        function removeUpload() {
+            $('.file-upload-input').replaceWith($('.file-upload-input').clone());
+            $('.file-upload-content').hide();
+            $('.image-upload-wrap').show();
+        }
+        $('.image-upload-wrap').bind('dragover', function () {
+            $('.image-upload-wrap').addClass('image-dropping');
+        });
+        $('.image-upload-wrap').bind('dragleave', function () {
+            $('.image-upload-wrap').removeClass('image-dropping');
+        });
+
+
+    </script>
+</body>
+<!-- License
+Copy
+Copyright (c) 2022 by AndyCho1209 (https://codepen.io/AndyCho1209/pen/VwBYJeg)
+Fork of an original work File upload input (https://codepen.io/aaronvanston/pen/yNYOXR
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. -->
+
+</html>
+</body>
+</html>
